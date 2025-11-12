@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="fr.hockey.controllers.DashboardController"
+            prefHeight="768.0" prefWidth="1024.0">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #2c3e50; -fx-padding: 10px;">
+            <Label text="Hockey Club Manager" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="userLabel" text="Administrateur: Admin" style="-fx-text-fill: white;"/>
+            <Button fx:id="logoutButton" text="Déconnexion" onAction="#handleLogout"/>
+        </HBox>
+    </top>
+    <left>
+        <VBox spacing="5.0" style="-fx-background-color: #34495e; -fx-padding: 10px;" prefWidth="200.0">
+            <Button fx:id="playersButton" text="Joueurs" maxWidth="Infinity" onAction="#showPlayers"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button fx:id="coachesButton" text="Coachs" maxWidth="Infinity" onAction="#showCoaches"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button fx:id="licensesButton" text="Licences" maxWidth="Infinity" onAction="#showLicenses"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button fx:id="categoriesButton" text="Catégories" maxWidth="Infinity" onAction="#showCategories"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button fx:id="revenueButton" text="Revenus" maxWidth="Infinity" onAction="#showRevenue"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button fx:id="createAdminButton" text="Création d'admin" maxWidth="Infinity" onAction="#showCreateAdmin"
+                    style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+        </VBox>
+    </left>
+    <center>
+        <StackPane fx:id="contentArea">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <VBox alignment="CENTER">
+                <Label text="Bienvenue dans le Gestionnaire de Licences et Équipes" style="-fx-font-size: 24px;"/>
+                <Label text="Sélectionnez une option dans le menu de gauche" style="-fx-font-size: 16px;"/>
+            </VBox>
+        </StackPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" style="-fx-background-color: #ecf0f1; -fx-padding: 5px;">
+            <Label text="© 2025 - BTS SIO - Projet Hockey Club Manager"/>
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="fr.hockey.controllers.CategoriesController" spacing="12" alignment="TOP_LEFT">
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+    <children>
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <children>
+                <Label text="Catégorie:" />
+                <ComboBox fx:id="categoryCombo" prefWidth="200" />
+                <Label fx:id="statusLabel" text="" />
+            </children>
+        </HBox>
+
+        <SplitPane dividerPositions="0.5">
+            <items>
+                <VBox spacing="6">
+                    <children>
+                        <Label text="Joueurs" />
+                        <TableView fx:id="playersTable" prefHeight="300">
+                            <columns>
+                                <TableColumn fx:id="pFirstNameColumn" text="Prénom" prefWidth="120" />
+                                <TableColumn fx:id="pLastNameColumn" text="Nom" prefWidth="120" />
+                                <TableColumn fx:id="pRoleColumn" text="Rôle" prefWidth="120" />
+                                <TableColumn fx:id="pPositionColumn" text="Poste" prefWidth="120" />
+                            </columns>
+                        </TableView>
+                    </children>
+                </VBox>
+                <VBox spacing="6">
+                    <children>
+                        <Label text="Coachs" />
+                        <TableView fx:id="coachesTable" prefHeight="300">
+                            <columns>
+                                <TableColumn fx:id="cFirstNameColumn" text="Prénom" prefWidth="140" />
+                                <TableColumn fx:id="cLastNameColumn" text="Nom" prefWidth="140" />
+                                <TableColumn fx:id="cEmailColumn" text="Email" prefWidth="200" />
+                            </columns>
+                        </TableView>
+                    </children>
+                </VBox>
+            </items>
+        </SplitPane>
+    </children>
+</VBox>
