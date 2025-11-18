@@ -7,6 +7,7 @@ public class Player {
     private String category; // U9, U11, U13, U15, U17, U20
     private String role; // "CAPITAINE", "ASSISTANT", "JOUEUR"
     private String position; // "GARDIEN", "DEFENSEUR", "ATTAQUANT"
+    private int number; // Numéro de maillot (1-99), 0 si non défini
     private License license;
 
     public Player() {
@@ -68,6 +69,14 @@ public class Player {
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     public License getLicense() {

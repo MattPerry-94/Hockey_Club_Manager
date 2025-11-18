@@ -16,7 +16,7 @@
         <Label text="Gestion des Coachs" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="addCoachButton" text="Ajouter un coach" onAction="#handleAddCoach"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+                style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
         <Label fx:id="roleInfoLabel" text=""/>
     </HBox>
 
@@ -50,9 +50,10 @@
         </GridPane>
 
         <HBox spacing="10.0" alignment="CENTER_RIGHT">
-            <Button fx:id="cancelCreateCoachButton" text="Annuler" onAction="#handleCancelCreateCoach"/>
+            <Button fx:id="cancelCreateCoachButton" text="Annuler" onAction="#handleCancelCreateCoach"
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="createCoachButton" text="Enregistrer" onAction="#handleCreateCoach"
-                    style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
         </HBox>
         <Label fx:id="createStatusLabel" text=""/>
     </VBox>

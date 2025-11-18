@@ -3,33 +3,47 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="fr.hockey.controllers.DashboardController"
+            fx:controller="fr.hockey.controllers.DashboardController" fx:id="rootPane"
             prefHeight="768.0" prefWidth="1024.0">
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #2c3e50; -fx-padding: 10px;">
-            <Label text="Hockey Club Manager" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        <HBox alignment="CENTER" spacing="10.0" style="-fx-background-color: -app-header-bg; -fx-padding: 10px;">
+            <Label text="Hockey Club Manager" style="-fx-text-fill: -app-on-header; -fx-font-size: 20px; -fx-font-weight: bold;"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="userLabel" text="Administrateur: Admin" style="-fx-text-fill: white;"/>
-            <Button fx:id="logoutButton" text="Déconnexion" onAction="#handleLogout"/>
+            <!-- Logo du club au centre -->
+            <ImageView fx:id="logoImageView" fitHeight="40.0" preserveRatio="true" />
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="userLabel" text="Administrateur: Admin" style="-fx-text-fill: -app-on-header;"/>
+            <ComboBox fx:id="themeColorCombo" promptText="Couleur" onAction="#handleThemeChanged" />
+            <Button fx:id="changeLogoButton" text="Changer le logo" onAction="#handleChangeLogo"
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;" />
+            <Button fx:id="logoutButton" text="Déconnexion" onAction="#handleLogout"
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
         </HBox>
     </top>
     <left>
-        <VBox spacing="5.0" style="-fx-background-color: #34495e; -fx-padding: 10px;" prefWidth="200.0">
+        <VBox spacing="5.0" style="-fx-background-color: -app-sidebar-bg; -fx-padding: 10px;" prefWidth="200.0">
             <Button fx:id="playersButton" text="Joueurs" maxWidth="Infinity" onAction="#showPlayers"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="coachesButton" text="Coachs" maxWidth="Infinity" onAction="#showCoaches"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="licensesButton" text="Licences" maxWidth="Infinity" onAction="#showLicenses"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="categoriesButton" text="Catégories" maxWidth="Infinity" onAction="#showCategories"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="revenueButton" text="Revenus" maxWidth="Infinity" onAction="#showRevenue"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="createAdminButton" text="Création d'admin" maxWidth="Infinity" onAction="#showCreateAdmin"
-                    style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
+            <Button fx:id="legalInfoButton" text="Informations Légales" maxWidth="Infinity" onAction="#showLegalInfo"
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
+            <Separator />
+            <HBox alignment="CENTER">
+                <ImageView fx:id="sidebarLogoImageView" fitWidth="160.0" preserveRatio="true" />
+            </HBox>
         </VBox>
     </left>
     <center>

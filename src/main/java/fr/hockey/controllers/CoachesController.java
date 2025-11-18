@@ -82,6 +82,9 @@ public class CoachesController implements Initializable {
                     Coach c = getTableView().getItems().get(getIndex());
                     deleteCoach(c);
                 });
+                // Styles de thème
+                editBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
+                deleteBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
                 if (!SessionManager.getInstance().isAdmin()) {
                     editBtn.setDisable(true);
                     deleteBtn.setDisable(true);

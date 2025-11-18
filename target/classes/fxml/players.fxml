@@ -19,12 +19,13 @@
         <ComboBox fx:id="categoryFilter" promptText="Filtrer par catégorie"/>
         <ComboBox fx:id="positionFilter" promptText="Filtrer par poste"/>
         <Button fx:id="addButton" text="Ajouter un joueur" onAction="#handleAddPlayer"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+                style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
     </HBox>
     
     <TableView fx:id="playersTable" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="numberColumn" text="Numéro" prefWidth="70"/>
             <TableColumn fx:id="firstNameColumn" text="Prénom" prefWidth="150"/>
             <TableColumn fx:id="lastNameColumn" text="Nom" prefWidth="150"/>
             <TableColumn fx:id="categoryColumn" text="Catégorie" prefWidth="100"/>
@@ -60,14 +61,18 @@
             <Label text="Rôle:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
             <ComboBox fx:id="roleCombo" GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity"/>
             
-            <Label text="Poste:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <ComboBox fx:id="positionCombo" GridPane.rowIndex="4" GridPane.columnIndex="1" maxWidth="Infinity"/>
+            <Label text="Numéro:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="numberCombo" GridPane.rowIndex="4" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+            <Label text="Poste:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="positionCombo" GridPane.rowIndex="5" GridPane.columnIndex="1" maxWidth="Infinity"/>
         </GridPane>
         
         <HBox spacing="10.0" alignment="CENTER_RIGHT">
-            <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"/>
+            <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
-                    style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
         </HBox>
     </VBox>
 </VBox>

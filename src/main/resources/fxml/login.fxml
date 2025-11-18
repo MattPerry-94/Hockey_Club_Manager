@@ -22,7 +22,7 @@
                 <TextField fx:id="usernameField" promptText="Nom d'utilisateur" maxWidth="300.0"/>
                 <PasswordField fx:id="passwordField" promptText="Mot de passe" maxWidth="300.0"/>
                 <Button fx:id="loginButton" text="Connexion" onAction="#handleLogin" maxWidth="300.0" 
-                        style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                        style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
                 <Label fx:id="errorLabel" textFill="RED" visible="false"/>
             </VBox>
         </VBox>

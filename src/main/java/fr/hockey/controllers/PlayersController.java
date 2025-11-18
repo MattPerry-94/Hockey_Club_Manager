@@ -28,6 +28,8 @@ public class PlayersController implements Initializable {
     @FXML
     private TableColumn<Player, Integer> idColumn;
     @FXML
+    private TableColumn<Player, String> numberColumn;
+    @FXML
     private TableColumn<Player, String> firstNameColumn;
     @FXML
     private TableColumn<Player, String> lastNameColumn;
@@ -57,6 +59,8 @@ public class PlayersController implements Initializable {
     private ComboBox<String> roleCombo;
     @FXML
     private ComboBox<String> positionCombo;
+    @FXML
+    private ComboBox<Integer> numberCombo;
     @FXML
     private Button saveButton;
     @FXML
@@ -93,6 +97,10 @@ public class PlayersController implements Initializable {
 
     private void setupTable() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        numberColumn.setCellValueFactory(cellData -> {
+            int n = cellData.getValue().getNumber();
+            return new SimpleStringProperty(n > 0 ? String.valueOf(n) : "");
+        });
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
@@ -132,6 +140,9 @@ public class PlayersController implements Initializable {
                     editBtn.setDisable(!isCoach);
                     deleteBtn.setDisable(true);
                 }
+                // Styles de thème
+                editBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
+                deleteBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
             }
 
             @Override
@@ -164,6 +175,12 @@ public class PlayersController implements Initializable {
         categoryCombo.getItems().addAll(CATEGORIES);
         roleCombo.getItems().addAll(ROLES);
         positionCombo.getItems().addAll(POSITIONS);
+        // Numéros de 1 à 99
+        ObservableList<Integer> numbers = FXCollections.observableArrayList();
+        for (int i = 1; i <= 99; i++) {
+            numbers.add(i);
+        }
+        numberCombo.setItems(numbers);
     }
 
     private void loadPlayers() {
@@ -218,12 +235,18 @@ public class PlayersController implements Initializable {
         categoryCombo.setValue(player.getCategory());
         roleCombo.setValue(player.getRole());
         positionCombo.setValue(player.getPosition());
+        if (player.getNumber() > 0) {
+            numberCombo.setValue(player.getNumber());
+        } else {
+            numberCombo.setValue(null);
+        }
         // En mode coach: seul le rôle est modifiable
         if (isCoach && !isAdmin) {
             firstNameField.setDisable(true);
             lastNameField.setDisable(true);
             categoryCombo.setDisable(true);
             positionCombo.setDisable(true);
+            numberCombo.setDisable(true);
             roleCombo.setDisable(false);
             saveButton.setDisable(false);
         } else {
@@ -232,6 +255,7 @@ public class PlayersController implements Initializable {
             lastNameField.setDisable(false);
             categoryCombo.setDisable(false);
             positionCombo.setDisable(false);
+            numberCombo.setDisable(false);
             roleCombo.setDisable(false);
         }
         showForm(true);
@@ -277,6 +301,8 @@ public class PlayersController implements Initializable {
         currentPlayer.setCategory(categoryCombo.getValue());
         currentPlayer.setRole(roleCombo.getValue());
         currentPlayer.setPosition(positionCombo.getValue());
+        Integer numVal = numberCombo.getValue();
+        currentPlayer.setNumber(numVal != null ? numVal : 0);
 
         try {
             playerDAO.save(currentPlayer);
@@ -295,11 +321,18 @@ public class PlayersController implements Initializable {
     private boolean validateForm() {
         StringBuilder errors = new StringBuilder();
 
+        boolean isAdmin = SessionManager.getInstance().isAdmin();
+        boolean isCoach = SessionManager.getInstance().isCoach();
+
         if (firstNameField.getText().trim().isEmpty()) errors.append("- Le prénom est requis\n");
         if (lastNameField.getText().trim().isEmpty()) errors.append("- Le nom est requis\n");
         if (categoryCombo.getValue() == null) errors.append("- La catégorie est requise\n");
         if (roleCombo.getValue() == null) errors.append("- Le rôle est requis\n");
         if (positionCombo.getValue() == null) errors.append("- Le poste est requis\n");
+        // Exiger le numéro uniquement lors de la création (admin) ou édition admin
+        if (!isEditMode && numberCombo.getValue() == null) {
+            errors.append("- Le numéro est requis\n");
+        }
 
         if (errors.length() > 0) {
             showAlert(Alert.AlertType.ERROR, "Validation", "Veuillez corriger les erreurs suivantes:", errors.toString());
@@ -314,6 +347,7 @@ public class PlayersController implements Initializable {
         categoryCombo.setValue(null);
         roleCombo.setValue(null);
         positionCombo.setValue(null);
+        numberCombo.setValue(null);
     }
 
     private void showForm(boolean show) {

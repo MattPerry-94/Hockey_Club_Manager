@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS players (
     last_name VARCHAR(50) NOT NULL,
     category VARCHAR(10) NOT NULL,
     role ENUM('CAPITAINE', 'ASSISTANT', 'JOUEUR') NOT NULL,
-    position ENUM('GARDIEN', 'DEFENSEUR', 'ATTAQUANT') NOT NULL
+    position ENUM('GARDIEN', 'DEFENSEUR', 'ATTAQUANT') NOT NULL,
+    number INT NULL
 );
 
 -- Table des licences

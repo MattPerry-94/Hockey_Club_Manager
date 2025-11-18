@@ -11,7 +11,7 @@ import java.util.List;
 public class PlayerDAO {
 
     public List<Player> findAll() throws SQLException {
-        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, " +
+        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, p.number, " +
                 "l.id AS license_id, l.paid AS license_paid, l.expiration_date AS license_expiration_date, l.amount AS license_amount " +
                 "FROM players p LEFT JOIN licenses l ON l.player_id = p.id " +
                 "ORDER BY p.last_name, p.first_name";
@@ -23,7 +23,7 @@ public class PlayerDAO {
     }
 
     public List<Player> findByCategory(String category) throws SQLException {
-        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, " +
+        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, p.number, " +
                 "l.id AS license_id, l.paid AS license_paid, l.expiration_date AS license_expiration_date, l.amount AS license_amount " +
                 "FROM players p LEFT JOIN licenses l ON l.player_id = p.id " +
                 "WHERE p.category = ? ORDER BY p.last_name, p.first_name";
@@ -37,7 +37,7 @@ public class PlayerDAO {
     }
 
     public List<Player> findByPosition(String position) throws SQLException {
-        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, " +
+        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, p.number, " +
                 "l.id AS license_id, l.paid AS license_paid, l.expiration_date AS license_expiration_date, l.amount AS license_amount " +
                 "FROM players p LEFT JOIN licenses l ON l.player_id = p.id " +
                 "WHERE p.position = ? ORDER BY p.last_name, p.first_name";
@@ -51,7 +51,7 @@ public class PlayerDAO {
     }
 
     public List<Player> findByCategoryAndPosition(String category, String position) throws SQLException {
-        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, " +
+        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, p.number, " +
                 "l.id AS license_id, l.paid AS license_paid, l.expiration_date AS license_expiration_date, l.amount AS license_amount " +
                 "FROM players p LEFT JOIN licenses l ON l.player_id = p.id " +
                 "WHERE p.category = ? AND p.position = ? ORDER BY p.last_name, p.first_name";
@@ -74,7 +74,7 @@ public class PlayerDAO {
     }
 
     private boolean insert(Player player) throws SQLException {
-        String sql = "INSERT INTO players (first_name, last_name, category, role, position) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO players (first_name, last_name, category, role, position, number) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, player.getFirstName());
@@ -82,6 +82,11 @@ public class PlayerDAO {
             ps.setString(3, player.getCategory());
             ps.setString(4, player.getRole());
             ps.setString(5, player.getPosition());
+            if (player.getNumber() > 0) {
+                ps.setInt(6, player.getNumber());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
             int affected = ps.executeUpdate();
             if (affected == 0) return false;
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -94,7 +99,7 @@ public class PlayerDAO {
     }
 
     private boolean update(Player player) throws SQLException {
-        String sql = "UPDATE players SET first_name = ?, last_name = ?, category = ?, role = ?, position = ? WHERE id = ?";
+        String sql = "UPDATE players SET first_name = ?, last_name = ?, category = ?, role = ?, position = ?, number = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, player.getFirstName());
@@ -102,7 +107,12 @@ public class PlayerDAO {
             ps.setString(3, player.getCategory());
             ps.setString(4, player.getRole());
             ps.setString(5, player.getPosition());
-            ps.setInt(6, player.getId());
+            if (player.getNumber() > 0) {
+                ps.setInt(6, player.getNumber());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+            ps.setInt(7, player.getId());
             int affected = ps.executeUpdate();
             return affected > 0;
         }
@@ -128,6 +138,12 @@ public class PlayerDAO {
             p.setCategory(rs.getString("category"));
             p.setRole(rs.getString("role"));
             p.setPosition(rs.getString("position"));
+            int number = rs.getInt("number");
+            if (!rs.wasNull()) {
+                p.setNumber(number);
+            } else {
+                p.setNumber(0);
+            }
 
             int licenseId = rs.getInt("license_id");
             if (!rs.wasNull()) {

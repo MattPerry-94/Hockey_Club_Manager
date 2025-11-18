@@ -44,7 +44,8 @@
         </GridPane>
         <HBox spacing="10">
             <children>
-                <Button fx:id="createButton" text="Créer" onAction="#handleCreate"/>
+                <Button fx:id="createButton" text="Créer" onAction="#handleCreate"
+                        style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
                 <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
             </children>
         </HBox>

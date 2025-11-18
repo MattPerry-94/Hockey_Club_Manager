@@ -73,6 +73,10 @@ public class LicenseController {
                 createBtn.setOnAction(this::handleCreateOrUpdate);
                 payBtn.setOnAction(this::handleMarkPaid);
                 unpayBtn.setOnAction(this::handleMarkUnpaid);
+                // Styles de thème
+                createBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
+                payBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
+                unpayBtn.setStyle("-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;");
                 if (!isAdmin) {
                     createBtn.setDisable(true);
                     payBtn.setDisable(true);
