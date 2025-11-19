@@ -7,6 +7,7 @@ C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\models\LegalInfo
 C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\Main.java
 C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\models\Admin.java
 C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\models\Coach.java
+C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\utils\MatchSheetPdfGenerator.java
 C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\dao\LicenseDAO.java
 C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\dao\PlayerDAO.java
 C:\bts\info\projet java\ApplicationJava\src\main\java\fr\hockey\dao\DatabaseConnection.java

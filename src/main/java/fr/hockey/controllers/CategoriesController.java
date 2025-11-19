@@ -13,12 +13,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.stage.FileChooser;
 
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.io.File;
+import java.util.Comparator;
 
 public class CategoriesController implements Initializable {
 
@@ -98,4 +103,39 @@ public class CategoriesController implements Initializable {
             statusLabel.setStyle(ok ? "-fx-text-fill: #2c3e50;" : "-fx-text-fill: #c0392b;");
         }
     }
+
+    @FXML
+    private void handleGeneratePdf() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/match_form.fxml"));
+            javafx.scene.Parent root = loader.load();
+            MatchFormController ctrl = loader.getController();
+            // Pré-sélectionner la catégorie courante si dispo
+            String current = categoryCombo != null ? categoryCombo.getValue() : null;
+            if (current != null) ctrl.setInitialCategory(current);
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Formulaire de feuille de match");
+            stage.initOwner(playersTable.getScene().getWindow());
+            stage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.showAndWait();
+        } catch (Exception ex) {
+            Alert a = new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK);
+            a.setHeaderText("Impossible d'ouvrir le formulaire");
+            a.showAndWait();
+        }
+    }
+
+    private int positionOrder(String pos) {
+        if (pos == null) return 99;
+        switch (pos.toUpperCase()) {
+            case "GARDIEN": return 0;
+            case "DEFENSEUR": return 1;
+            case "ATTAQUANT": return 2;
+            default: return 98;
+        }
+    }
+
+    private String safe(String s) { return s == null ? "" : s.trim(); }
 }

@@ -13,7 +13,9 @@
             <children>
                 <Label text="Catégorie:" />
                 <ComboBox fx:id="categoryCombo" prefWidth="200" />
+                <Region HBox.hgrow="ALWAYS" />
                 <Label fx:id="statusLabel" text="" />
+                <Button text="Générer PDF" onAction="#handleGeneratePdf" />
             </children>
         </HBox>
 

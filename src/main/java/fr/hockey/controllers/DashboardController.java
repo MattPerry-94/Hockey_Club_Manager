@@ -151,6 +151,12 @@ public class DashboardController implements Initializable {
             
             // Rediriger vers la page de connexion
             Parent loginRoot = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+            // Réappliquer le thème pour garantir le style des boutons (gris)
+            String saved = AppSettings.getThemeColor();
+            if (saved == null || saved.isBlank()) {
+                saved = "Gris";
+            }
+            ThemeManager.applyTheme(loginRoot, saved);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setTitle("Club de Hockey - Connexion");
             stage.setScene(new Scene(loginRoot, 800, 600));
