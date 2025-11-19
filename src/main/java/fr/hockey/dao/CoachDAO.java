@@ -7,8 +7,26 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO dédié à la gestion des coachs.
+ * Permet :
+ *  - authentification
+ *  - récupération de tous les coachs
+ *  - création / modification / suppression
+ *  - gestion des équipes assignées à un coach
+ *  - recherche par catégorie
+ */
 public class CoachDAO {
 
+    /**
+     * Authentifie un coach via son username et password.
+     * Compare le mot de passe en clair avec le hash stocké (BCrypt).
+     *
+     * @param username nom d'utilisateur
+     * @param password mot de passe en clair saisi par l'utilisateur
+     * @return Coach authentifié ou null si échec
+     * @throws SQLException en cas d'erreur SQL
+     */
     public Coach authenticate(String username, String password) throws SQLException {
         String sql = "SELECT id, first_name, last_name, username, email, password FROM coaches WHERE username = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -24,7 +42,6 @@ public class CoachDAO {
                         coach.setLastName(rs.getString("last_name"));
                         coach.setUsername(rs.getString("username"));
                         coach.setEmail(rs.getString("email"));
-                        // Charger les équipes
                         coach.setTeams(loadTeamsForCoach(conn, coach.getId()));
                         return coach;
                     }
@@ -34,6 +51,12 @@ public class CoachDAO {
         return null;
     }
 
+    /**
+     * Retourne la liste de tous les coachs triés par nom et prénom.
+     *
+     * @return liste des coachs
+     * @throws SQLException en cas d'erreur SQL
+     */
     public List<Coach> findAll() throws SQLException {
         String sql = "SELECT id, first_name, last_name, username, email FROM coaches ORDER BY last_name, first_name";
         List<Coach> coaches = new ArrayList<>();
@@ -54,6 +77,14 @@ public class CoachDAO {
         return coaches;
     }
 
+    /**
+     * Charge la liste des catégories (équipes) assignées à un coach.
+     *
+     * @param conn connexion SQL existante
+     * @param coachId identifiant du coach
+     * @return liste des catégories entraînées par ce coach
+     * @throws SQLException en cas d'erreur SQL
+     */
     private List<String> loadTeamsForCoach(Connection conn, int coachId) throws SQLException {
         String sql = "SELECT category FROM coach_teams WHERE coach_id = ? ORDER BY category";
         List<String> teams = new ArrayList<>();
@@ -68,6 +99,17 @@ public class CoachDAO {
         return teams;
     }
 
+    /**
+     * Crée un coach dans la base avec hash du mot de passe.
+     *
+     * @param username nom d'utilisateur
+     * @param rawPassword mot de passe en clair
+     * @param firstName prénom
+     * @param lastName nom
+     * @param email email du coach
+     * @return ID généré ou -1 en cas d'échec
+     * @throws SQLException en cas d'erreur SQL
+     */
     public int createCoach(String username, String rawPassword, String firstName, String lastName, String email) throws SQLException {
         String sql = "INSERT INTO coaches (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -86,6 +128,18 @@ public class CoachDAO {
         return -1;
     }
 
+    /**
+     * Met à jour un coach avec ou sans mot de passe.
+     *
+     * @param coachId identifiant du coach
+     * @param username nouveau username
+     * @param firstName prénom
+     * @param lastName nom
+     * @param email email
+     * @param newPasswordOrNull nouveau mot de passe (si null → on ne change pas)
+     * @return true si la mise à jour a réussi
+     * @throws SQLException en cas d'erreur SQL
+     */
     public boolean updateCoach(int coachId, String username, String firstName, String lastName, String email, String newPasswordOrNull) throws SQLException {
         boolean updatePassword = newPasswordOrNull != null && !newPasswordOrNull.trim().isEmpty();
         String sql = updatePassword
@@ -107,6 +161,13 @@ public class CoachDAO {
         }
     }
 
+    /**
+     * Supprime un coach via son ID.
+     *
+     * @param coachId identifiant
+     * @return true si suppression réussie
+     * @throws SQLException en cas d'erreur SQL
+     */
     public boolean deleteById(int coachId) throws SQLException {
         String sql = "DELETE FROM coaches WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -116,6 +177,14 @@ public class CoachDAO {
         }
     }
 
+    /**
+     * Ajoute une équipe (catégorie) à un coach.
+     *
+     * @param coachId identifiant du coach
+     * @param category catégorie (U9, U11, etc.)
+     * @return true si l'insertion a réussi
+     * @throws SQLException en cas d'erreur SQL
+     */
     public boolean addTeam(int coachId, String category) throws SQLException {
         String sql = "INSERT INTO coach_teams (coach_id, category) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -126,6 +195,13 @@ public class CoachDAO {
         }
     }
 
+    /**
+     * Supprime toutes les équipes associées à un coach.
+     *
+     * @param coachId identifiant du coach
+     * @return true toujours
+     * @throws SQLException en cas d'erreur SQL
+     */
     public boolean deleteTeams(int coachId) throws SQLException {
         String sql = "DELETE FROM coach_teams WHERE coach_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -136,6 +212,13 @@ public class CoachDAO {
         }
     }
 
+    /**
+     * Recherche tous les coachs associés à une catégorie donnée.
+     *
+     * @param category catégorie recherchée
+     * @return liste des coachs de cette catégorie
+     * @throws SQLException en cas d'erreur SQL
+     */
     public List<Coach> findByCategory(String category) throws SQLException {
         String sql = "SELECT c.id, c.first_name, c.last_name, c.username, c.email " +
                 "FROM coaches c INNER JOIN coach_teams ct ON ct.coach_id = c.id " +
@@ -152,7 +235,6 @@ public class CoachDAO {
                     coach.setLastName(rs.getString("last_name"));
                     coach.setUsername(rs.getString("username"));
                     coach.setEmail(rs.getString("email"));
-                    // Charger les équipes pour information
                     coach.setTeams(loadTeamsForCoach(conn, coach.getId()));
                     coaches.add(coach);
                 }

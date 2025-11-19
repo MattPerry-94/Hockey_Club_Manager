@@ -12,6 +12,11 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+/**
+ * Contrôleur responsable de la gestion des informations légales :
+ * affichage en mode lecture seule, bascule en mode édition,
+ * sauvegarde en base de données et synchronisation avec AppSettings.
+ */
 public class LegalInfoController implements Initializable {
 
     // Champs édition (formulaire)
@@ -22,6 +27,7 @@ public class LegalInfoController implements Initializable {
     @FXML private TextField hostingField;
     @FXML private TextField contactField;
     @FXML private TextArea privacyArea;
+
     // Vue lecture seule
     @FXML private Label nameLabel;
     @FXML private Label addressLabel;
@@ -30,27 +36,34 @@ public class LegalInfoController implements Initializable {
     @FXML private Label hostingLabel;
     @FXML private Label contactLabel;
     @FXML private Label privacyLabel;
-    // Panneaux pour bascule
+
+    // Panneaux pour bascule (lecture ↔ édition)
     @FXML private VBox viewPane;
     @FXML private VBox editPane;
-    // Statut et actions
+
+    // Label de statut
     @FXML private Label statusLabel;
 
     private final LegalInformationDAO dao = new LegalInformationDAO();
     private LegalInformation currentInfo;
 
+    /**
+     * Initialise la vue en chargeant en priorité les informations légales depuis la base.
+     * Si aucune donnée n'existe, charge les valeurs locales depuis AppSettings.
+     * Configure ensuite l'interface en mode lecture seule.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Essayer de charger depuis la base de données, sinon fallback AppSettings
         try {
             LegalInformation current = dao.findCurrent();
+
             if (current != null) {
                 currentInfo = current;
                 populateEditFields(currentInfo);
                 populateView(currentInfo);
                 statusLabel.setText("Informations chargées depuis la base de données.");
             } else {
-                // Pré-remplir avec AppSettings pour aider la première insertion
+                // Aucun enregistrement → charger valeurs locales
                 currentInfo = new LegalInformation();
                 currentInfo.setName(AppSettings.getLegalName());
                 currentInfo.setAddress(AppSettings.getLegalAddress());
@@ -59,18 +72,26 @@ public class LegalInfoController implements Initializable {
                 currentInfo.setHosting(AppSettings.getLegalHosting());
                 currentInfo.setContact(AppSettings.getLegalContact());
                 currentInfo.setPrivacy(AppSettings.getLegalPrivacy());
+
                 populateEditFields(currentInfo);
                 populateView(currentInfo);
+
                 statusLabel.setText("Aucune donnée en base, valeurs locales chargées.");
             }
+
             setViewMode(true);
+
         } catch (SQLException ex) {
             statusLabel.setText("Erreur de chargement: " + ex.getMessage());
-            // Assurer un état UI cohérent
             setViewMode(true);
         }
     }
 
+    /**
+     * Enregistre les informations légales dans la base (INSERT ou UPDATE via upsert).
+     * Met également à jour AppSettings pour que les valeurs locales restent synchronisées.
+     * Repasse en mode lecture seule après sauvegarde.
+     */
     @FXML
     private void handleSave() {
         LegalInformation info = new LegalInformation();
@@ -84,8 +105,9 @@ public class LegalInfoController implements Initializable {
 
         try {
             boolean ok = dao.upsert(info);
+
             if (ok) {
-                // Synchroniser aussi avec AppSettings pour cohérence locale
+                // Synchroniser AppSettings
                 AppSettings.setLegalName(info.getName());
                 AppSettings.setLegalAddress(info.getAddress());
                 AppSettings.setLegalRegNo(info.getRegNo());
@@ -98,12 +120,16 @@ public class LegalInfoController implements Initializable {
                 populateView(currentInfo);
                 setViewMode(true);
                 statusLabel.setText("Informations enregistrées en base.");
-                Alert okAlert = new Alert(Alert.AlertType.INFORMATION, "Les informations légales ont été enregistrées en base de données.");
+
+                Alert okAlert = new Alert(Alert.AlertType.INFORMATION,
+                        "Les informations légales ont été enregistrées en base de données.");
                 okAlert.setHeaderText(null);
                 okAlert.showAndWait();
+
             } else {
                 throw new SQLException("Échec de l'enregistrement.");
             }
+
         } catch (SQLException ex) {
             statusLabel.setText("Erreur d'enregistrement: " + ex.getMessage());
             Alert err = new Alert(Alert.AlertType.ERROR, ex.getMessage());
@@ -112,20 +138,30 @@ public class LegalInfoController implements Initializable {
         }
     }
 
+    /**
+     * Passe en mode édition et recharge les champs du formulaire avec les valeurs actuelles.
+     */
     @FXML
     private void handleEdit() {
-        // Passer en mode édition et pré-remplir les champs si nécessaire
         populateEditFields(currentInfo != null ? currentInfo : new LegalInformation());
         setViewMode(false);
     }
 
+    /**
+     * Annule l'édition en cours et repasse en mode lecture seule
+     * sans sauvegarder les modifications.
+     */
     @FXML
     private void handleCancel() {
-        // Revenir à la vue lecture seule sans enregistrer
         populateView(currentInfo != null ? currentInfo : new LegalInformation());
         setViewMode(true);
     }
 
+    /**
+     * Bascule entre le mode lecture seule (viewPane) et le mode édition (editPane).
+     *
+     * @param viewMode true pour la vue lecture seule, false pour la vue édition
+     */
     private void setViewMode(boolean viewMode) {
         if (viewPane != null && editPane != null) {
             viewPane.setVisible(viewMode);
@@ -135,6 +171,11 @@ public class LegalInfoController implements Initializable {
         }
     }
 
+    /**
+     * Remplit les champs du formulaire d'édition avec les valeurs de l'objet fourni.
+     *
+     * @param info instance LegalInformation dont les valeurs doivent être affichées
+     */
     private void populateEditFields(LegalInformation info) {
         if (info == null) return;
         nameField.setText(nvl(info.getName()));
@@ -146,6 +187,11 @@ public class LegalInfoController implements Initializable {
         privacyArea.setText(nvl(info.getPrivacy()));
     }
 
+    /**
+     * Remplit la vue lecture seule avec les informations légales actuelles.
+     *
+     * @param info instance LegalInformation dont les données doivent être affichées
+     */
     private void populateView(LegalInformation info) {
         if (info == null) return;
         if (nameLabel != null) nameLabel.setText(nvl(info.getName()));
@@ -157,6 +203,15 @@ public class LegalInfoController implements Initializable {
         if (privacyLabel != null) privacyLabel.setText(nvl(info.getPrivacy()));
     }
 
+    /**
+     * Nettoie une chaîne : jamais null, toujours trimée.
+     */
     private String safe(String s) { return s == null ? "" : s.trim(); }
+
+    /**
+     * Retourne une chaîne non nulle :
+     * - si s est null → ""
+     * - sinon → s
+     */
     private String nvl(String s) { return s == null ? "" : s; }
 }

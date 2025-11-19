@@ -30,55 +30,41 @@ import java.nio.file.Path;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Contrôleur principal du tableau de bord après connexion.
+ * Il gère :
+ * - l’affichage du nom et du rôle de l’utilisateur
+ * - la navigation entre les différentes vues (joueurs, coachs, catégories…)
+ * - la gestion du thème
+ * - le changement du logo du club
+ * - la déconnexion
+ * Les fonctionnalités affichées dépendent du rôle (admin ou coach).
+ */
 public class DashboardController implements Initializable {
 
-    @FXML
-    private Label userLabel;
+    @FXML private Label userLabel;
+    @FXML private Button logoutButton;
+    @FXML private Button changeLogoButton;
+    @FXML private Button playersButton;
+    @FXML private Button coachesButton;
+    @FXML private Button licensesButton;
+    @FXML private Button categoriesButton;
+    @FXML private Button revenueButton;
+    @FXML private Button createAdminButton;
+    @FXML private Button legalInfoButton;
+    @FXML private StackPane contentArea;
+    @FXML private ImageView logoImageView;
+    @FXML private ImageView sidebarLogoImageView;
+    @FXML private ComboBox<String> themeColorCombo;
+    @FXML private BorderPane rootPane;
 
-    @FXML
-    private Button logoutButton;
-
-    @FXML
-    private Button changeLogoButton;
-
-    @FXML
-    private Button playersButton;
-
-    @FXML
-    private Button coachesButton;
-
-    @FXML
-    private Button licensesButton;
-
-    @FXML
-    private Button categoriesButton;
-
-    @FXML
-    private Button revenueButton;
-
-    @FXML
-    private Button createAdminButton;
-
-    @FXML
-    private Button legalInfoButton;
-
-    // Bouton Utilisateurs supprimé (pas d'interface utilisateurs)
-
-    @FXML
-    private StackPane contentArea;
-
-    @FXML
-    private ImageView logoImageView;
-
-    @FXML
-    private ImageView sidebarLogoImageView;
-
-    @FXML
-    private ComboBox<String> themeColorCombo;
-
-    @FXML
-    private BorderPane rootPane;
-
+    /**
+     * Initialise l’interface selon le rôle utilisateur :
+     * - affiche le nom de l’utilisateur connecté
+     * - active/désactive les boutons réservés à l’admin
+     * - applique le thème sauvegardé
+     * - charge le logo s’il existe
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         SessionManager session = SessionManager.getInstance();
@@ -97,25 +83,19 @@ public class DashboardController implements Initializable {
         // Visibilité selon rôle
         playersButton.setVisible(true);
         licensesButton.setVisible(true);
-        categoriesButton.setVisible(true); // visible pour les deux
-        coachesButton.setVisible(isAdmin); // réservé admin
-        revenueButton.setVisible(isAdmin); // réservé admin
-        if (legalInfoButton != null) {
-            legalInfoButton.setVisible(true); // visible pour tous
-        }
-        if (createAdminButton != null) {
-            createAdminButton.setVisible(isAdmin);
-        }
-        if (changeLogoButton != null) {
-            changeLogoButton.setVisible(isAdmin);
-        }
+        categoriesButton.setVisible(true);
+        coachesButton.setVisible(isAdmin);
+        revenueButton.setVisible(isAdmin);
 
+        if (legalInfoButton != null) legalInfoButton.setVisible(true);
+        if (createAdminButton != null) createAdminButton.setVisible(isAdmin);
+        if (changeLogoButton != null) changeLogoButton.setVisible(isAdmin);
+
+        // Thème
         if (themeColorCombo != null) {
             themeColorCombo.getItems().setAll(ThemeManager.getAvailableColors());
             String saved = AppSettings.getThemeColor();
-            if (saved == null || saved.isBlank()) {
-                saved = "Gris"; // défaut gris
-            }
+            if (saved == null || saved.isBlank()) saved = "Gris";
             themeColorCombo.getSelectionModel().select(saved);
             themeColorCombo.setVisible(isAdmin);
         }
@@ -127,103 +107,137 @@ public class DashboardController implements Initializable {
             ThemeManager.applyTheme(rootPane, initial);
         }
 
-        // Charger le logo s'il existe (header et barre latérale)
+        // Logo
         String logoPath = AppSettings.getLogoPath();
         if (logoPath != null) {
             File file = new File(logoPath);
             if (file.exists()) {
                 Image img = new Image(file.toURI().toString());
-                if (logoImageView != null) {
-                    logoImageView.setImage(img);
-                }
-                if (sidebarLogoImageView != null) {
-                    sidebarLogoImageView.setImage(img);
-                }
+                if (logoImageView != null) logoImageView.setImage(img);
+                if (sidebarLogoImageView != null) sidebarLogoImageView.setImage(img);
             }
         }
     }
 
+    /**
+     * Déconnecte l’utilisateur :
+     * - efface la session
+     * - recharge la vue de connexion
+     * - applique le thème sauvegardé
+     */
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // Effacer la session
             SessionManager.getInstance().clearSession();
-            
-            // Rediriger vers la page de connexion
+
             Parent loginRoot = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
-            // Réappliquer le thème pour garantir le style des boutons (gris)
+
             String saved = AppSettings.getThemeColor();
-            if (saved == null || saved.isBlank()) {
-                saved = "Gris";
-            }
+            if (saved == null || saved.isBlank()) saved = "Gris";
             ThemeManager.applyTheme(loginRoot, saved);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setTitle("Club de Hockey - Connexion");
             stage.setScene(new Scene(loginRoot, 800, 600));
             stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Charge la vue des joueurs.
+     */
     @FXML
     private void showPlayers(ActionEvent event) {
         loadView("/fxml/players.fxml");
     }
 
+    /**
+     * Charge la vue des coachs (réservée aux admins).
+     */
     @FXML
     private void showCoaches(ActionEvent event) {
         loadView("/fxml/coaches.fxml");
     }
 
+    /**
+     * Charge la vue des licences.
+     */
     @FXML
     private void showLicenses(ActionEvent event) {
         loadView("/fxml/licenses.fxml");
     }
 
+    /**
+     * Charge la vue des catégories.
+     */
     @FXML
     private void showCategories(ActionEvent event) {
         loadView("/fxml/categories.fxml");
     }
 
+    /**
+     * Charge la vue des revenus (réservée aux admins).
+     */
     @FXML
     private void showRevenue(ActionEvent event) {
         loadView("/fxml/revenue.fxml");
     }
 
+    /**
+     * Affiche le formulaire de création d’administrateur (réservé admins).
+     */
     @FXML
     private void showCreateAdmin(ActionEvent event) {
-        // réservé à l’admin par visibilité; on charge la vue
         loadView("/fxml/create_admin.fxml");
     }
 
+    /**
+     * Affiche la page des mentions légales (accessible à tous).
+     */
     @FXML
     private void showLegalInfo(ActionEvent event) {
         loadView("/fxml/legal_info.fxml");
     }
 
-    // Méthode showUsers supprimée
-
+    /**
+     * Charge dynamiquement une vue dans la zone centrale du tableau de bord.
+     *
+     * @param fxmlPath chemin du fichier FXML à charger
+     */
     private void loadView(String fxmlPath) {
         try {
             Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
             contentArea.getChildren().clear();
             contentArea.getChildren().add(view);
+
         } catch (Exception e) {
             e.printStackTrace();
+
             StringBuilder sb = new StringBuilder();
-            sb.append("Impossible de charger la vue: ").append(fxmlPath).append("\n");
-            sb.append(e.toString()).append("\n");
+            sb.append("Impossible de charger la vue: ").append(fxmlPath).append("\n")
+                    .append(e).append("\n");
+
             Throwable cause = e.getCause();
             if (cause != null) {
-                sb.append("Cause: ").append(cause.toString()).append("\n");
+                sb.append("Cause: ").append(cause).append("\n");
             }
+
             Alert a = new Alert(Alert.AlertType.ERROR, sb.toString(), ButtonType.OK);
             a.setHeaderText("Erreur d'affichage");
             a.showAndWait();
         }
     }
 
+    /**
+     * Permet à l’administrateur d’importer une image de logo :
+     * - ouverture d’un FileChooser
+     * - copie du fichier dans le dossier de configuration
+     * - mise à jour immédiate du logo dans le tableau de bord
+     * - enregistrement du chemin dans AppSettings
+     */
     @FXML
     private void handleChangeLogo(ActionEvent event) {
         try {
@@ -232,22 +246,23 @@ public class DashboardController implements Initializable {
             chooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
             );
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             File selected = chooser.showOpenDialog(stage);
+
             if (selected != null) {
                 Path dest = AppSettings.copyLogoToConfigDir(selected);
                 AppSettings.setLogoPath(dest.toString());
+
                 Image img = new Image(dest.toUri().toString());
-                if (logoImageView != null) {
-                    logoImageView.setImage(img);
-                }
-                if (sidebarLogoImageView != null) {
-                    sidebarLogoImageView.setImage(img);
-                }
+                if (logoImageView != null) logoImageView.setImage(img);
+                if (sidebarLogoImageView != null) sidebarLogoImageView.setImage(img);
+
                 Alert ok = new Alert(Alert.AlertType.INFORMATION, "Logo mis à jour avec succès.");
                 ok.setHeaderText(null);
                 ok.showAndWait();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             Alert a = new Alert(Alert.AlertType.ERROR, "Échec de la mise à jour du logo: " + e.getMessage(), ButtonType.OK);
@@ -256,6 +271,11 @@ public class DashboardController implements Initializable {
         }
     }
 
+    /**
+     * Gère le changement de thème :
+     * - applique le thème sélectionné
+     * - le sauvegarde dans AppSettings
+     */
     @FXML
     private void handleThemeChanged(ActionEvent event) {
         if (themeColorCombo != null && rootPane != null) {

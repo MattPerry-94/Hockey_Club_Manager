@@ -15,16 +15,17 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.FileChooser;
 
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.io.File;
-import java.util.Comparator;
 
+/**
+ * Contrôleur JavaFX responsable de l'affichage des joueurs et coachs
+ * selon une catégorie sélectionnée dans l'interface.
+ */
 public class CategoriesController implements Initializable {
 
     @FXML private ComboBox<String> categoryCombo;
@@ -51,12 +52,24 @@ public class CategoriesController implements Initializable {
 
     private static final List<String> CATEGORIES = Arrays.asList("U9", "U11", "U13", "U15", "U17", "U20");
 
+    /**
+     * Méthode d'initialisation du contrôleur appelée automatiquement par JavaFX.
+     * Configure les tables et le filtre de catégories.
+     *
+     * @param url non utilisé.
+     * @param resourceBundle ressources localisées, non utilisées ici.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupTables();
         setupCategoryFilter();
     }
 
+    /**
+     * Configure les colonnes des tables (joueurs et coachs) en associant
+     * chaque colonne à la propriété correspondante des modèles Player et Coach.
+     * Initialise les listes observables utilisées par les TableView.
+     */
     private void setupTables() {
         // Players
         pFirstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -72,6 +85,13 @@ public class CategoriesController implements Initializable {
         coachesTable.setItems(coaches);
     }
 
+    /**
+     * Initialise le ComboBox des catégories :
+     * - Remplit les valeurs disponibles
+     * - Définit le texte par défaut
+     * - Ajoute un listener déclenchant le chargement des joueurs/coach
+     *   lorsqu'une catégorie est sélectionnée.
+     */
     private void setupCategoryFilter() {
         categoryCombo.getItems().setAll(CATEGORIES);
         categoryCombo.setPromptText("Sélectionnez une catégorie");
@@ -83,20 +103,36 @@ public class CategoriesController implements Initializable {
         });
     }
 
+    /**
+     * Charge les joueurs et les coachs correspondant à une catégorie donnée,
+     * en utilisant les DAO PlayerDAO et CoachDAO.
+     * Met également à jour le message de statut affiché.
+     *
+     * @param category catégorie sélectionnée (ex : "U15").
+     */
     private void loadByCategory(String category) {
         try {
             players.setAll(playerDAO.findByCategory(category));
         } catch (SQLException ex) {
             setStatus("Erreur joueurs: " + ex.getMessage(), false);
         }
+
         try {
             coaches.setAll(coachDAO.findByCategory(category));
         } catch (SQLException ex) {
             setStatus("Erreur coachs: " + ex.getMessage(), false);
         }
+
         setStatus("Catégorie: " + category + " — " + players.size() + " joueurs, " + coaches.size() + " coachs", true);
     }
 
+    /**
+     * Met à jour le label de statut avec un message et une couleur distincte
+     * selon que l'opération est réussie ou non.
+     *
+     * @param msg message à afficher.
+     * @param ok  true si l'opération a réussi, false en cas d'erreur.
+     */
     private void setStatus(String msg, boolean ok) {
         if (statusLabel != null) {
             statusLabel.setText(msg);
@@ -104,13 +140,22 @@ public class CategoriesController implements Initializable {
         }
     }
 
+    /**
+     * Ouvre la fenêtre permettant de générer une feuille de match au format PDF.
+     * Charge le fichier FXML correspondant, instancie son contrôleur puis,
+     * si disponible, précharge la catégorie actuellement sélectionnée.
+     * Affiche ensuite la fenêtre en modal.
+     *
+     * En cas d'erreur (chargement FXML, instanciation, etc.),
+     * une alerte est affichée à l'utilisateur.
+     */
     @FXML
     private void handleGeneratePdf() {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/match_form.fxml"));
             javafx.scene.Parent root = loader.load();
             MatchFormController ctrl = loader.getController();
-            // Pré-sélectionner la catégorie courante si dispo
+
             String current = categoryCombo != null ? categoryCombo.getValue() : null;
             if (current != null) ctrl.setInitialCategory(current);
 
@@ -120,6 +165,7 @@ public class CategoriesController implements Initializable {
             stage.initModality(javafx.stage.Modality.WINDOW_MODAL);
             stage.setScene(new javafx.scene.Scene(root));
             stage.showAndWait();
+
         } catch (Exception ex) {
             Alert a = new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK);
             a.setHeaderText("Impossible d'ouvrir le formulaire");
@@ -127,6 +173,14 @@ public class CategoriesController implements Initializable {
         }
     }
 
+    /**
+     * Retourne un ordre numérique permettant de trier les joueurs
+     * en fonction de leur position : Gardien (0), Défenseur (1),
+     * Attaquant (2), puis valeurs inconnues (98) et nulles (99).
+     *
+     * @param pos position textuelle du joueur.
+     * @return un entier représentant l'ordre de tri.
+     */
     private int positionOrder(String pos) {
         if (pos == null) return 99;
         switch (pos.toUpperCase()) {
@@ -137,5 +191,14 @@ public class CategoriesController implements Initializable {
         }
     }
 
-    private String safe(String s) { return s == null ? "" : s.trim(); }
+    /**
+     * Renvoie une version sécurisée d'une chaîne de caractères.
+     * Si la valeur est null → chaîne vide, sinon → chaîne trimée.
+     *
+     * @param s chaîne potentiellement nulle.
+     * @return chaîne nettoyée et non nulle.
+     */
+    private String safe(String s) {
+        return s == null ? "" : s.trim();
+    }
 }

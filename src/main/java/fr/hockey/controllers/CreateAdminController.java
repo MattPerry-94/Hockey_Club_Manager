@@ -8,6 +8,11 @@ import javafx.scene.control.*;
 
 import java.sql.SQLException;
 
+/**
+ * Contrôleur responsable de la création d'un nouvel administrateur.
+ * Cette interface est réservée exclusivement aux utilisateurs possédant
+ * les droits administrateurs.
+ */
 public class CreateAdminController {
 
     @FXML private TextField usernameField;
@@ -20,6 +25,11 @@ public class CreateAdminController {
 
     private final AdminDAO adminDAO = new AdminDAO();
 
+    /**
+     * Méthode appelée automatiquement lors du chargement du FXML.
+     * Active ou désactive le bouton de création en fonction du rôle
+     * de l'utilisateur courant (admin ou non).
+     */
     @FXML
     private void initialize() {
         boolean isAdmin = SessionManager.getInstance().isAdmin();
@@ -29,6 +39,12 @@ public class CreateAdminController {
         }
     }
 
+    /**
+     * Gère la création d'un nouvel administrateur.
+     * Vérifie les champs, construit un objet Admin puis appelle
+     * le DAO pour l'enregistrer dans la base de données.
+     * Affiche un message de succès ou d'erreur selon le résultat.
+     */
     @FXML
     private void handleCreate() {
         statusLabel.setText("");
@@ -72,8 +88,17 @@ public class CreateAdminController {
         }
     }
 
+    /**
+     * Nettoie une chaîne : jamais null, trimée.
+     *
+     * @param s chaîne potentiellement nulle
+     * @return chaîne nettoyée ou vide
+     */
     private String safeTrim(String s) { return s == null ? "" : s.trim(); }
 
+    /**
+     * Réinitialise tous les champs du formulaire après une création réussie.
+     */
     private void clearForm() {
         usernameField.clear();
         passwordField.clear();

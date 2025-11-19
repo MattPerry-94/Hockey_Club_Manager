@@ -12,6 +12,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Contrôleur chargé de l'affichage et de la synthèse des revenus liés aux licences :
+ * - nombre de licences payées / impayées
+ * - montants correspondants
+ * - totaux globaux (payé + attendu)
+ *
+ * L'écran est consultable par les coachs, mais modifiable uniquement par les administrateurs.
+ */
 public class RevenueController {
 
     @FXML private TableView<RevenueItem> revenueTable;
@@ -21,6 +29,7 @@ public class RevenueController {
     @FXML private TableColumn<RevenueItem, Integer> unpaidCountColumn;
     @FXML private TableColumn<RevenueItem, Double> unpaidTotalColumn;
     @FXML private TableColumn<RevenueItem, Double> expectedTotalColumn;
+
     @FXML private Label totalsLabel;
     @FXML private Label roleInfoLabel;
 
@@ -29,6 +38,12 @@ public class RevenueController {
 
     private boolean isAdmin;
 
+    /**
+     * Initialise la vue :
+     * - configure les colonnes du tableau
+     * - détecte le rôle utilisateur (admin/coach)
+     * - charge les données de revenus
+     */
     @FXML
     public void initialize() {
         isAdmin = SessionManager.getInstance().isAdmin();
@@ -44,8 +59,14 @@ public class RevenueController {
         reload();
     }
 
-    
-
+    /**
+     * Recharge les données financières :
+     * - revenue par catégorie
+     * - totaux globaux
+     *
+     * Appelle les méthodes du RevenueDAO et met à jour le tableau.
+     * En cas de problème SQL, une boîte d’erreur s’affiche.
+     */
     private void reload() {
         try {
             List<RevenueItem> list = revenueDAO.getRevenueByCategory();
@@ -54,12 +75,21 @@ public class RevenueController {
 
             double totalPaid = revenueDAO.getTotalPaid();
             double totalExpected = revenueDAO.getTotalExpected();
-            totalsLabel.setText(String.format("Total payé: %.2f € | Total attendu: %.2f €", totalPaid, totalExpected));
+
+            totalsLabel.setText(
+                    String.format("Total payé: %.2f € | Total attendu: %.2f €", totalPaid, totalExpected)
+            );
+
         } catch (SQLException ex) {
             showError(ex);
         }
     }
 
+    /**
+     * Affiche une boîte d’erreur générique contenant le message d’une exception.
+     *
+     * @param ex exception SQL ou autre erreur
+     */
     private void showError(Exception ex) {
         Alert a = new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK);
         a.setHeaderText("Erreur");
