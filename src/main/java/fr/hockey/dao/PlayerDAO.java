@@ -2,6 +2,7 @@ package fr.hockey.dao;
 
 import fr.hockey.models.License;
 import fr.hockey.models.Player;
+import fr.hockey.utils.AuditLogger;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -155,6 +156,14 @@ public class PlayerDAO {
                     player.setId(keys.getInt(1));
                 }
             }
+            AuditLogger.logChange(
+                    "players",
+                    "INSERT",
+                    String.valueOf(player.getId()),
+                    String.format("first_name=%s,last_name=%s,category=%s,role=%s,position=%s,number=%s",
+                            player.getFirstName(), player.getLastName(), player.getCategory(), player.getRole(), player.getPosition(),
+                            player.getNumber() > 0 ? player.getNumber() : "NULL")
+            );
             return true;
         }
     }
@@ -182,7 +191,18 @@ public class PlayerDAO {
             }
             ps.setInt(7, player.getId());
             int affected = ps.executeUpdate();
-            return affected > 0;
+            if (affected > 0) {
+                AuditLogger.logChange(
+                        "players",
+                        "UPDATE",
+                        String.valueOf(player.getId()),
+                        String.format("first_name=%s,last_name=%s,category=%s,role=%s,position=%s,number=%s",
+                                player.getFirstName(), player.getLastName(), player.getCategory(), player.getRole(), player.getPosition(),
+                                player.getNumber() > 0 ? player.getNumber() : "NULL")
+                );
+                return true;
+            }
+            return false;
         }
     }
 
@@ -199,7 +219,11 @@ public class PlayerDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, playerId);
             int affected = ps.executeUpdate();
-            return affected > 0;
+            if (affected > 0) {
+                AuditLogger.logChange("players", "DELETE", String.valueOf(playerId), "");
+                return true;
+            }
+            return false;
         }
     }
 

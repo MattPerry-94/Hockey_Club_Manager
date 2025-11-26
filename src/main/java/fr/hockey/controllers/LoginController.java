@@ -17,6 +17,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Contrôleur responsable de la gestion de l'écran de connexion.
@@ -25,6 +31,24 @@ import java.io.IOException;
  * du tableau de bord est chargée.
  */
 public class LoginController {
+
+    // --- Journalisation des connexions ---
+    private static final Logger LOGIN_LOG = Logger.getLogger("LoginAudit");
+    static {
+        try {
+            Path dir = Paths.get(System.getProperty("user.home"), ".hockeyclubmanager");
+            if (!Files.exists(dir)) {
+                Files.createDirectories(dir);
+            }
+            Path logFile = dir.resolve("login.log");
+            FileHandler fh = new FileHandler(logFile.toString(), true);
+            fh.setFormatter(new SimpleFormatter());
+            LOGIN_LOG.addHandler(fh);
+            LOGIN_LOG.setUseParentHandlers(false); // éviter la sortie console si non désirée
+        } catch (IOException ignored) {
+            // Si le fichier ne peut pas être créé, on continue sans handler fichier
+        }
+    }
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -55,25 +79,28 @@ public class LoginController {
         }
 
         try {
-            // Authentification admin
+            LOGIN_LOG.info("Tentative de connexion: username=" + username);
             Admin admin = adminDAO.authenticate(username, password);
             if (admin != null) {
                 SessionManager.getInstance().setCurrentAdmin(admin);
+                LOGIN_LOG.info("Connexion réussie (ADMIN): username=" + username + ", id=" + admin.getId());
                 loadDashboard(event, admin.getRole());
                 return;
             }
 
-            // Authentification coach
+            // Essai d'authentification comme coach
             Coach coach = coachDAO.authenticate(username, password);
             if (coach != null) {
                 SessionManager.getInstance().setCurrentCoach(coach);
+                LOGIN_LOG.info("Connexion réussie (COACH): username=" + username + ", id=" + coach.getId());
                 loadDashboard(event, "COACH");
                 return;
             }
 
+            LOGIN_LOG.warning("Échec de connexion: identifiants invalides pour username=" + username);
             showError("Nom d'utilisateur ou mot de passe incorrect");
-
         } catch (Exception e) {
+            LOGIN_LOG.severe("Erreur de connexion pour username=" + username + ": " + e.getMessage());
             showError("Erreur de connexion: " + e.getMessage());
             e.printStackTrace();
         }

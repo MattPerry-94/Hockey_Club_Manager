@@ -38,6 +38,8 @@
                     style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="createAdminButton" text="Création d'admin" maxWidth="Infinity" onAction="#showCreateAdmin"
                     style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
+            <Button fx:id="logsButton" text="Logs" maxWidth="Infinity" onAction="#showLogs"
+                    style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Button fx:id="legalInfoButton" text="Informations Légales" maxWidth="Infinity" onAction="#showLegalInfo"
                     style="-fx-background-color: -app-button-bg; -fx-text-fill: -app-on-accent;"/>
             <Separator />

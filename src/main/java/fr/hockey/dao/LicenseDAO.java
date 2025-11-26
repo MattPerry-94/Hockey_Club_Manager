@@ -1,6 +1,7 @@
 package fr.hockey.dao;
 
 import fr.hockey.models.License;
+import fr.hockey.utils.AuditLogger;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -65,7 +66,12 @@ public class LicenseDAO {
             ps.setBoolean(2, paid);
             ps.setDate(3, Date.valueOf(expirationDate));
             ps.setDouble(4, amount);
-            return ps.executeUpdate() > 0;
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) {
+                AuditLogger.logChange("licenses", "INSERT", "player_id=" + playerId,
+                        String.format("paid=%s,expiration_date=%s,amount=%.2f", paid, expirationDate, amount));
+            }
+            return ok;
         }
     }
 
@@ -84,7 +90,12 @@ public class LicenseDAO {
             ps.setDate(2, Date.valueOf(license.getExpirationDate()));
             ps.setDouble(3, license.getAmount());
             ps.setInt(4, license.getId());
-            return ps.executeUpdate() > 0;
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) {
+                AuditLogger.logChange("licenses", "UPDATE", String.valueOf(license.getId()),
+                        String.format("paid=%s,expiration_date=%s,amount=%.2f", license.isPaid(), license.getExpirationDate(), license.getAmount()));
+            }
+            return ok;
         }
     }
 
@@ -102,7 +113,11 @@ public class LicenseDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBoolean(1, paid);
             ps.setInt(2, licenseId);
-            return ps.executeUpdate() > 0;
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) {
+                AuditLogger.logChange("licenses", "UPDATE_PAID", String.valueOf(licenseId), "paid=" + paid);
+            }
+            return ok;
         }
     }
 
@@ -118,7 +133,11 @@ public class LicenseDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, playerId);
-            return ps.executeUpdate() > 0;
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) {
+                AuditLogger.logChange("licenses", "DELETE_BY_PLAYER", String.valueOf(playerId), "");
+            }
+            return ok;
         }
     }
 

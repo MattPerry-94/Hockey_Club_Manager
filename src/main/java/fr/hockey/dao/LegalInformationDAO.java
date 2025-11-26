@@ -1,6 +1,7 @@
 package fr.hockey.dao;
 
 import fr.hockey.models.LegalInformation;
+import fr.hockey.utils.AuditLogger;
 
 import java.sql.*;
 
@@ -90,7 +91,11 @@ public class LegalInformationDAO {
                 if (affected > 0) {
                     try (ResultSet keys = ps.getGeneratedKeys()) {
                         if (keys.next()) {
-                            return keys.getInt(1);
+                            int newId = keys.getInt(1);
+                            AuditLogger.logChange("legal_informations", "INSERT", String.valueOf(newId),
+                                    String.format("name=%s,address=%s,reg_no=%s,publisher=%s,hosting=%s,contact=%s,privacy=%s",
+                                            info.getName(), info.getAddress(), info.getRegNo(), info.getPublisher(), info.getHosting(), info.getContact(), info.getPrivacy()));
+                            return newId;
                         }
                     }
                 }
@@ -121,7 +126,13 @@ public class LegalInformationDAO {
                 ps.setString(6, info.getContact());
                 ps.setString(7, info.getPrivacy());
                 ps.setInt(8, id);
-                return ps.executeUpdate() > 0;
+                boolean ok = ps.executeUpdate() > 0;
+                if (ok) {
+                    AuditLogger.logChange("legal_informations", "UPDATE", String.valueOf(id),
+                            String.format("name=%s,address=%s,reg_no=%s,publisher=%s,hosting=%s,contact=%s,privacy=%s",
+                                    info.getName(), info.getAddress(), info.getRegNo(), info.getPublisher(), info.getHosting(), info.getContact(), info.getPrivacy()));
+                }
+                return ok;
             }
         }
     }
@@ -139,7 +150,11 @@ public class LegalInformationDAO {
             int newId = insert(info);
             return newId > 0;
         } else {
-            return update(current.getId(), info);
+            boolean ok = update(current.getId(), info);
+            if (ok) {
+                AuditLogger.logChange("legal_informations", "UPSERT", String.valueOf(current.getId()), "existing_updated");
+            }
+            return ok;
         }
     }
 

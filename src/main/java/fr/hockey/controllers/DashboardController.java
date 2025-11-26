@@ -52,6 +52,7 @@ public class DashboardController implements Initializable {
     @FXML private Button revenueButton;
     @FXML private Button createAdminButton;
     @FXML private Button legalInfoButton;
+    @FXML private Button logsButton;
     @FXML private StackPane contentArea;
     @FXML private ImageView logoImageView;
     @FXML private ImageView sidebarLogoImageView;
@@ -90,6 +91,7 @@ public class DashboardController implements Initializable {
         if (legalInfoButton != null) legalInfoButton.setVisible(true);
         if (createAdminButton != null) createAdminButton.setVisible(isAdmin);
         if (changeLogoButton != null) changeLogoButton.setVisible(isAdmin);
+        if (logsButton != null) logsButton.setVisible(isAdmin);
 
         // Thème
         if (themeColorCombo != null) {
@@ -200,6 +202,14 @@ public class DashboardController implements Initializable {
     @FXML
     private void showLegalInfo(ActionEvent event) {
         loadView("/fxml/legal_info.fxml");
+    }
+
+    /**
+     * Affiche la vue des logs d'audit (réservée aux admins).
+     */
+    @FXML
+    private void showLogs(ActionEvent event) {
+        loadView("/fxml/logs.fxml");
     }
 
     /**

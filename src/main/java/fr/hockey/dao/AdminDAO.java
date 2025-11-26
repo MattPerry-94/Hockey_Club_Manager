@@ -2,6 +2,7 @@ package fr.hockey.dao;
 
 import fr.hockey.models.Admin;
 import org.mindrot.jbcrypt.BCrypt;
+import fr.hockey.utils.AuditLogger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -190,7 +191,13 @@ public class AdminDAO {
             stmt.setInt(6, admin.getId());
 
             int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0;
+            if (affectedRows > 0) {
+                AuditLogger.logChange("admins", "UPDATE", String.valueOf(admin.getId()),
+                        String.format("username=%s,first_name=%s,last_name=%s,email=%s,role=%s",
+                                admin.getUsername(), admin.getFirstName(), admin.getLastName(), admin.getEmail(), admin.getRole()));
+                return true;
+            }
+            return false;
         }
     }
 
@@ -213,7 +220,11 @@ public class AdminDAO {
             adminStmt.setString(1, hashed);
             adminStmt.setInt(2, adminId);
             int affectedAdmins = adminStmt.executeUpdate();
-            return affectedAdmins > 0;
+            if (affectedAdmins > 0) {
+                AuditLogger.logChange("admins", "PASSWORD_CHANGE", String.valueOf(adminId), "password=UPDATED");
+                return true;
+            }
+            return false;
         }
     }
 
@@ -230,7 +241,11 @@ public class AdminDAO {
              PreparedStatement adminStmt = conn.prepareStatement(deleteAdmin)) {
             adminStmt.setInt(1, id);
             int affectedRows = adminStmt.executeUpdate();
-            return affectedRows > 0;
+            if (affectedRows > 0) {
+                AuditLogger.logChange("admins", "DELETE", String.valueOf(id), "");
+                return true;
+            }
+            return false;
         }
     }
 
@@ -282,6 +297,9 @@ public class AdminDAO {
                 if (keys.next()) admin.setId(keys.getInt(1));
             }
 
+            AuditLogger.logChange("admins", "INSERT", String.valueOf(admin.getId()),
+                    String.format("username=%s,first_name=%s,last_name=%s,email=%s,role=%s",
+                            admin.getUsername(), admin.getFirstName(), admin.getLastName(), admin.getEmail(), admin.getRole()));
             return true;
         }
     }
