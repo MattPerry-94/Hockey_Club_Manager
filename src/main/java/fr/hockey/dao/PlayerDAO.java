@@ -108,6 +108,20 @@ public class PlayerDAO {
         }
     }
 
+    public Player findById(int id) throws SQLException {
+        String sql = "SELECT p.id, p.first_name, p.last_name, p.category, p.role, p.position, p.number, " +
+                "l.id AS license_id, l.paid AS license_paid, l.expiration_date AS license_expiration_date, l.amount AS license_amount " +
+                "FROM players p LEFT JOIN licenses l ON l.player_id = p.id WHERE p.id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Player> list = mapPlayers(rs);
+                return list.isEmpty() ? null : list.get(0);
+            }
+        }
+    }
+
     /**
      * Enregistre un joueur.
      * <p>

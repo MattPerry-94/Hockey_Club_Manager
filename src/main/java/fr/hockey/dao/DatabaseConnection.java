@@ -62,6 +62,10 @@ public class DatabaseConnection {
         return connection;
     }
 
+    public static void setConnection(Connection c) {
+        connection = c;
+    }
+
     /**
      * Ferme la connexion active si elle existe.
      * <p>
