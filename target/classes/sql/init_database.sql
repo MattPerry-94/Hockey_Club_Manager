@@ -59,6 +59,20 @@ CREATE TABLE IF NOT EXISTS licenses (
     FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
 );
 
+-- Table des informations légales
+CREATE TABLE IF NOT EXISTS legal_informations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    reg_no VARCHAR(50) NOT NULL,
+    publisher VARCHAR(100) NOT NULL,
+    hosting TEXT NOT NULL,
+    contact VARCHAR(100) NOT NULL,
+    privacy TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Insertion des données initiales pour les tarifs
 INSERT INTO category_fees (category, fee) VALUES
 ('U9', 100.00),
