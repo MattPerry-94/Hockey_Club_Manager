@@ -95,5 +95,32 @@ public class MatchSheetPdfGeneratorTest {
 
         System.out.println("TEST_RESULT=PASS");
     }
-}
 
+    @Test
+    void testGeneratePdfWithEmptyList() throws Exception {
+        // Test "négatif" : liste vide
+        // Le générateur ne doit pas planter, mais générer un PDF indiquant "Aucun joueur"
+        List<Player> emptyList = new ArrayList<>();
+        File out = Files.createTempFile("feuille_match_empty_", ".pdf").toFile();
+
+        // On vérifie que ça ne lance PAS d'exception
+        assertDoesNotThrow(() -> {
+            MatchSheetPdfGenerator.generate("U15", emptyList, out, LocalDate.now(), "Personne", null);
+        });
+
+        // Vérification du contenu
+        assertTrue(out.exists());
+        assertTrue(out.length() > 0);
+
+        String text;
+        try (PDDocument doc = PDDocument.load(out)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            text = stripper.getText(doc);
+        }
+        
+        System.out.println("EMPTY_PDF_TEXT=" + text);
+        // Le code du générateur écrit "Aucun joueur" si la liste est vide pour une section
+        assertTrue(text.contains("Aucun joueur"));
+        System.out.println("TEST_EMPTY_PDF=PASS");
+    }
+}

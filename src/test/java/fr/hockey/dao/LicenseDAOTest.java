@@ -33,7 +33,8 @@ public class LicenseDAOTest {
                     "player_id INT NOT NULL," +
                     "paid BOOLEAN NOT NULL DEFAULT FALSE," +
                     "expiration_date DATE NOT NULL," +
-                    "amount DECIMAL(10,2) NOT NULL" +
+                    "amount DECIMAL(10,2) NOT NULL," +
+                    "FOREIGN KEY (player_id) REFERENCES players(id)" +
                     ")");
             st.execute("CREATE TABLE category_fees (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
@@ -101,5 +102,17 @@ public class LicenseDAOTest {
 
         System.out.println("TEST_RESULT=PASS");
     }
-}
 
+    @Test
+    void testCreateLicenseForNonExistentPlayer() {
+        LicenseDAO dao = new LicenseDAO();
+        int fakePlayerId = 99999; // ID qui n'existe pas
+
+        // On s'attend à une exception car la contrainte de clé étrangère (FOREIGN KEY) sera violée
+        assertThrows(SQLException.class, () -> {
+            dao.createForPlayer(fakePlayerId, 100.00, LocalDate.now(), false);
+        }, "Créer une licence pour un joueur inexistant doit échouer (FK constraint)");
+
+        System.out.println("TEST_INVALID_LICENSE=PASS (Exception SQL levée comme prévu)");
+    }
+}

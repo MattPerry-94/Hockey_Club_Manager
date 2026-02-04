@@ -57,7 +57,11 @@ public class PlayerDAOTest {
         assertTrue(ok);
         System.out.println("INSERT_OK=" + ok);
 
-        Connection checkConn = DatabaseConnection.getConnection();
+        // La connexion a été fermée par le DAO, il faut la rouvrir vers H2 pour les vérifications
+        conn = DriverManager.getConnection("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1");
+        DatabaseConnection.setConnection(conn);
+        Connection checkConn = conn;
+
         int count;
         try (PreparedStatement cps = checkConn.prepareStatement("SELECT COUNT(*) FROM players");
              ResultSet crs = cps.executeQuery()) {
@@ -88,5 +92,21 @@ public class PlayerDAOTest {
         System.out.println("TEST_RESULT=PASS");
 
         assertTrue(true);
+    }
+
+    @Test
+    void testInsertInvalidPlayer() {
+        // Tentative d'insertion d'un joueur invalide (champs nulls obligatoires)
+        Player p = new Player();
+        // On ne set ni prénom, ni nom, ni catégorie... qui sont NOT NULL en base
+
+        PlayerDAO dao = new PlayerDAO();
+
+        // On s'attend à ce que save(p) lève une SQLException car la contrainte NOT NULL sera violée
+        assertThrows(SQLException.class, () -> {
+            dao.save(p);
+        }, "L'insertion d'un joueur vide devrait lever une exception SQL");
+
+        System.out.println("TEST_INVALID_PLAYER=PASS (Exception SQL levée comme prévu)");
     }
 }
