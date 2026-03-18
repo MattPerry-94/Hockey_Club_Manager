@@ -2,6 +2,7 @@ package fr.hockey.controllers;
 
 import fr.hockey.dao.CoachDAO;
 import fr.hockey.models.Coach;
+import fr.hockey.utils.PasswordValidator;
 import fr.hockey.utils.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -184,6 +185,20 @@ public class CoachesController implements Initializable {
         } else {
             if (username.isEmpty() || first.isEmpty() || last.isEmpty() || email.isEmpty() || category.isEmpty()) {
                 setStatus("Tous les champs (hors mot de passe) sont obligatoires.", false);
+                return;
+            }
+        }
+
+        // Validation du mot de passe (complexe)
+        if (!isEditMode) {
+            if (!PasswordValidator.isValid(password)) {
+                setStatus(PasswordValidator.getErrorMessage(), false);
+                return;
+            }
+        } else {
+            // En édition, on ne valide que si le champ est rempli (changement de mdp)
+            if (!password.isEmpty() && !PasswordValidator.isValid(password)) {
+                setStatus(PasswordValidator.getErrorMessage(), false);
                 return;
             }
         }

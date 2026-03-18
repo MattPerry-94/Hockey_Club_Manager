@@ -2,6 +2,7 @@ package fr.hockey.controllers;
 
 import fr.hockey.dao.AdminDAO;
 import fr.hockey.models.Admin;
+import fr.hockey.utils.PasswordValidator;
 import fr.hockey.utils.SessionManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -58,6 +59,11 @@ public class CreateAdminController {
 
         if (username.isEmpty() || password.isEmpty() || first.isEmpty() || last.isEmpty() || email.isEmpty()) {
             statusLabel.setText("Tous les champs sont obligatoires.");
+            return;
+        }
+
+        if (!PasswordValidator.isValid(password)) {
+            statusLabel.setText(PasswordValidator.getErrorMessage());
             return;
         }
 

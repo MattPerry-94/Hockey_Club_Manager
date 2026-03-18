@@ -21,13 +21,12 @@ import java.sql.SQLException;
 public class DatabaseConnection {
 
     /** URL complète JDBC vers la base MySQL. */
-    private static final String URL = "jdbc:mysql://localhost:3306/club_manager";
-
+    private static final String URL = "jdbc:mysql://panel.fm-tech.fr:3306/matthieup_db1";
     /** Nom d'utilisateur MySQL. */
-    private static final String USER = "root";
+    private static final String USER = "matthieup_db1";
 
     /** Mot de passe MySQL. */
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "HockPM119774";
 
     /** Connexion partagée (singleton). */
     private static Connection connection;

@@ -37,11 +37,11 @@ public class CreateAdminTool {
         try {
             Admin admin = new Admin(
                     0,               // id auto-inc
-                    "MattP",         // username
-                    "mdp123",        // password (sera haché)
+                    "MP",         // username
+                    "Mdp123$",        // password (sera haché)
                     "Matt",          // firstName
                     "Perry",         // lastName
-                    "matt.perry@club.fr", // email (facultatif)
+                    "m.perry@club.fr", // email (facultatif)
                     "ADMIN"          // role
             );
 
